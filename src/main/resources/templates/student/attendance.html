@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Attendance - InternPortal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/attendance.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-student :: sidebar('attendance')}"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="main-content">
+  <header class="top-header">
+    <button onclick="toggleSidebar()" id="menuBtn" class="menu-button"><i class="fas fa-bars"></i></button>
+    <div class="header-title">Mark Attendance</div>
+    <div class="header-actions">
+      <a th:href="@{/student/attendance/history}" class="btn-outline-glow" style="font-size:.82rem;padding:7px 16px;text-decoration:none;">
+        <i class="fas fa-calendar-days"></i> History
+      </a>
+    </div>
+  </header>
+  <div class="page-content page-enter">
+    <div class="alert-glass success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert-glass error" th:if="${error}" th:text="${error}"></div>
+
+    <div style="max-width:560px;margin:0 auto;">
+      <div class="attendance-card-big fade-in" style="margin-bottom:24px;">
+        <div class="attendance-status-icon">
+          <i class="fas fa-circle-check" th:if="${checkedOut}"></i>
+          <i class="fas fa-hourglass-half" th:if="${checkedIn and !checkedOut}"></i>
+          <i class="fas fa-circle" th:if="${!checkedIn}"></i>
+        </div>
+        <div class="attendance-status-text gradient-text"
+             th:text="${checkedOut} ? 'Attendance Complete' : (${checkedIn} ? 'Checked In' : 'Not Checked In')"></div>
+        <div style="color:var(--text-muted);font-size:.87rem;margin-bottom:20px;"
+             th:text="${checkedOut} ? 'You have completed attendance for today' : (${checkedIn} ? 'Have a productive day! Remember to check out before you leave.' : 'Mark your attendance by clicking Check In below')"></div>
+
+        <div th:if="${todayAttendance != null}">
+          <div class="attendance-time-badge" th:if="${todayAttendance.checkInTime != null}">
+            <i class="fas fa-arrow-up"></i> Checked in at <strong th:text="${#temporals.format(todayAttendance.checkInTime,'HH:mm:ss')}"></strong>
+          </div>
+          <div class="attendance-time-badge" th:if="${todayAttendance.checkOutTime != null}">
+            <i class="fas fa-arrow-down"></i> Checked out at <strong th:text="${#temporals.format(todayAttendance.checkOutTime,'HH:mm:ss')}"></strong>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;font-size:.85rem;color:var(--text-muted);">
+          <i class="fas fa-clock"></i> Current time: <strong id="liveClock" style="color:var(--accent);"></strong>
+        </div>
+        <div class="attendance-time-badge" style="margin-top:14px;">
+          <i class="fas fa-calendar-day"></i>
+          Class timing:
+          <strong th:text="${#temporals.format(attendanceWindow.startTime,'hh:mm a')} + ' - ' + ${#temporals.format(attendanceWindow.endTime,'hh:mm a')}">11:00 AM - 12:00 PM</strong>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 fade-in stagger-1" th:if="${!checkedIn and !attendanceWindowOpen}">
+        <h6 style="color:var(--text-primary);font-weight:700;margin-bottom:12px;"><i class="fas fa-lock"></i> Attendance Closed</h6>
+        <div style="font-size:.9rem;color:var(--text-secondary);line-height:1.7;" th:text="${attendanceWindowMessage}">
+          Hey idiot, this is not the right time to mark your attendance. Come back tomorrow at the exact class time.
+        </div>
+      </div>
+
+      <div class="glass-card p-4 fade-in stagger-1" th:if="${!checkedIn and attendanceWindowOpen}">
+        <h6 style="color:var(--text-primary);font-weight:700;margin-bottom:16px;"><i class="fas fa-camera"></i> Live Selfie Check-In</h6>
+        <form th:action="@{/attendance/check-in}" method="post" id="liveAttendanceForm">
+          <input type="hidden" id="photoData" name="photoData">
+          <div class="live-camera-panel">
+            <video id="liveCamera" autoplay playsinline muted></video>
+            <canvas id="captureCanvas" style="display:none;"></canvas>
+            <img id="capturedPreview" alt="Captured selfie" style="display:none;">
+            <div id="cameraMessage" class="camera-message">Allow camera access, then capture your live photo.</div>
+          </div>
+          <div class="camera-actions">
+            <button type="button" class="btn-outline-glow" id="startCameraBtn">
+              <i class="fas fa-video"></i> Start Camera
+            </button>
+            <button type="button" class="btn-outline-glow" id="capturePhotoBtn" disabled>
+              <i class="fas fa-camera"></i> Capture Photo
+            </button>
+          </div>
+          <button type="submit" id="checkInSubmit" class="check-btn check-in" disabled style="width:100%;margin-top:16px;margin-left:0;justify-content:center;">
+            <i class="fas fa-sign-in-alt"></i> Check In Now
+          </button>
+        </form>
+      </div>
+
+      <div class="glass-card p-4 fade-in stagger-2" th:if="${checkedIn and !checkedOut}">
+        <h6 style="color:var(--text-primary);font-weight:700;margin-bottom:16px;">Ready to Leave?</h6>
+        <div style="font-size:.87rem;color:var(--text-secondary);margin-bottom:20px;">
+          Don't forget to submit your daily feedback before checking out.
+        </div>
+        <div style="display:flex;gap:12px;">
+          <form th:action="@{/attendance/check-out}" method="post" style="flex:1;">
+            <button type="submit" class="check-btn check-out" style="width:100%;margin:0;justify-content:center;">
+              <i class="fas fa-sign-out-alt"></i> Check Out
+            </button>
+          </form>
+          <a th:href="@{/student/feedback}" class="btn-gradient" style="text-decoration:none;padding:14px 20px;">
+            <i class="fas fa-pen-to-square"></i> Feedback First
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/attendance.js}"></script>
+</body></html>

@@ -1,0 +1,58 @@
+<aside xmlns:th="http://www.thymeleaf.org" th:fragment="sidebar(activePage)" class="sidebar">
+  <a href="/admin/dashboard" class="sidebar-logo">
+    <div class="sidebar-logo-icon"><i class="fas fa-graduation-cap"></i></div>
+    <div>
+      <div class="sidebar-logo-text">InternPortal</div>
+      <div class="sidebar-logo-sub">Admin Control Panel</div>
+    </div>
+  </a>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Main Menu</div>
+
+    <a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-chart-line"></i></span> Dashboard
+    </a>
+    <a th:href="@{/admin/students}" th:classappend="${activePage == 'students'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-user-graduate"></i></span> Students
+    </a>
+
+    <div class="sidebar-section-label">Operations</div>
+
+    <a th:href="@{/admin/attendance}" th:classappend="${activePage == 'attendance'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-clipboard-check"></i></span> Attendance
+    </a>
+    <a th:href="@{/admin/feedback}" th:classappend="${activePage == 'feedback'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-message"></i></span> Feedback
+    </a>
+    <a th:href="@{/admin/analytics}" th:classappend="${activePage == 'analytics'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-chart-pie"></i></span> Analytics
+    </a>
+    <a th:href="@{/admin/settings}" th:classappend="${activePage == 'settings'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-clock"></i></span> Class Timing
+    </a>
+
+    <div class="sidebar-section-label">Account</div>
+
+    <a th:href="@{/admin/notifications}" th:classappend="${activePage == 'notifications'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-bell"></i></span> Notifications
+      <span class="nav-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}"></span>
+    </a>
+    <a th:href="@{/admin/profile}" th:classappend="${activePage == 'profile'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-user"></i></span> Profile
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="avatar-circle" th:text="${user.firstName.substring(0,1) + user.lastName.substring(0,1)}"></div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" th:text="${user.fullName}">Admin</div>
+        <div class="sidebar-user-role"><i class="fas fa-shield-halved"></i> Administrator</div>
+      </div>
+    </div>
+    <a th:href="@{/logout}" class="logout-btn">
+      <span><i class="fas fa-right-from-bracket"></i></span> Sign Out
+    </a>
+  </div>
+</aside>

@@ -1,0 +1,76 @@
+<aside xmlns:th="http://www.thymeleaf.org" th:fragment="sidebar(activePage)" class="sidebar">
+  <a href="https://forgeindiaconnect.com/" target="_blank" class="sidebar-logo">
+    <div class="sidebar-logo-icon">
+        <i class="fas fa-graduation-cap"></i>
+    </div>
+    <div>
+        <div class="sidebar-logo-text">
+            <span class="fic-highlight">FIC</span> Intern Portal
+        </div>
+    </div>
+</a>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Main Menu</div>
+
+    <a th:href="@{/student/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-house"></i></span> Dashboard
+    </a>
+
+    <div class="sidebar-section-label">Attendance</div>
+
+    <a th:href="@{/student/attendance}" th:classappend="${activePage == 'attendance'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-location-dot"></i></span> Mark Attendance
+    </a>
+    <a th:href="@{/student/attendance/history}" th:classappend="${activePage == 'attendance-history'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-calendar-days"></i></span> Attendance History
+    </a>
+
+    <div class="sidebar-section-label">Feedback</div>
+
+    <a th:href="@{/student/feedback}" th:classappend="${activePage == 'feedback'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-pen-to-square"></i></span> Submit Feedback
+    </a>
+    <a th:href="@{/student/feedback/history}" th:classappend="${activePage == 'feedback-history'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-clock-rotate-left"></i></span> Feedback History
+    </a>
+
+    <div class="sidebar-section-label">Practice</div>
+
+    <a href="https://fic-mcq-portal-1.onrender.com" target="_blank" rel="noopener">
+      <span class="nav-icon"><i class="fas fa-list-check"></i></span> Test Yourself
+    </a>
+
+    <div class="sidebar-section-label">Meeting</div>
+
+    <a href="https://workspace-blue-theta-87.vercel.app/" target="_blank" rel="noopener">
+      <span class="nav-icon"><i class="fas fa-list-check"></i></span> Meeting
+    </a>
+
+    <div class="sidebar-section-label">Account</div>
+
+    <a th:href="@{/student/notifications}" th:classappend="${activePage == 'notifications'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-bell"></i></span> Notifications
+      <span class="nav-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}"></span>
+    </a>
+    <a th:href="@{/student/profile}" th:classappend="${activePage == 'profile'} ? 'active' : ''">
+      <span class="nav-icon"><i class="fas fa-user"></i></span> Profile
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="avatar-circle" th:if="${user.profilePicture == null or user.profilePicture.isEmpty()}"
+           th:text="${user.firstName.substring(0,1) + user.lastName.substring(0,1)}"></div>
+      <img th:if="${user.profilePicture != null and !user.profilePicture.isEmpty()}"
+           th:src="${user.profilePicture}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;" alt="Profile">
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" th:text="${user.fullName}">Student</div>
+        <div class="sidebar-user-role"><i class="fas fa-id-badge"></i> Intern</div>
+      </div>
+    </div>
+    <a th:href="@{/logout}" class="logout-btn">
+      <span><i class="fas fa-right-from-bracket"></i></span> Sign Out
+    </a>
+  </div>
+</aside>

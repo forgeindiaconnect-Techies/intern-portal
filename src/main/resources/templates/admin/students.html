@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Students - InternPortal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-admin :: sidebar('students')}"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="main-content">
+  <header class="top-header">
+    <button onclick="toggleSidebar()" class="menu-button" id="menuBtn"><i class="fas fa-bars"></i></button>
+    <div class="header-title">Student Management</div>
+    <div class="header-actions">
+      <a th:href="@{/admin/notifications}" class="header-btn">
+        <i class="fas fa-bell"></i><span class="notif-dot" th:if="${unreadCount > 0}"></span>
+      </a>
+      <a th:href="@{/admin/students/add}" class="btn-gradient" style="font-size:0.85rem;padding:8px 18px;text-decoration:none;">
+        <i class="fas fa-plus"></i> Add Student
+      </a>
+    </div>
+  </header>
+
+  <div class="page-content page-enter">
+    <div class="alert-glass success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert-glass error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="dashboard-hero" style="margin-bottom:22px;">
+      <div>
+        <div class="eyebrow">Student records</div>
+        <h1>Manage students</h1>
+        <p th:text="${#lists.size(students)} + ' students registered'">0 students registered</p>
+      </div>
+      <a th:href="@{/admin/students/add}" class="btn-gradient hero-action">
+        <i class="fas fa-user-plus"></i> New Student
+      </a>
+    </section>
+
+    <div class="glass-card p-3 mb-4" style="display:flex;gap:12px;align-items:center;">
+      <i class="fas fa-search" style="color:var(--text-muted);"></i>
+      <input type="text" id="searchInput" placeholder="Search students by name, email, college..."
+             oninput="filterStudents(this.value)"
+             style="background:none;border:none;outline:none;color:var(--text-primary);flex:1;font-size:0.9rem;">
+    </div>
+
+    <div class="glass-card">
+      <div th:if="${#lists.isEmpty(students)}" style="text-align:center;padding:60px;color:var(--text-muted);">
+        <i class="fas fa-user-graduate" style="font-size:2rem;margin-bottom:16px;color:var(--accent);"></i>
+        <div style="font-size:1.1rem;margin-bottom:8px;color:var(--text-primary);font-weight:700;">No students yet</div>
+        <a th:href="@{/admin/students/add}" class="btn-gradient" style="text-decoration:none;">Add First Student</a>
+      </div>
+      <div class="table-responsive" th:if="${!#lists.isEmpty(students)}">
+        <table class="table table-dark-glass" id="studentsTable">
+          <thead>
+          <tr>
+            <th>Student</th>
+            <th>Contact</th>
+            <th>College / Dept</th>
+            <th>Status</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="student, iter : ${students}" class="fade-in" th:classappend="'stagger-' + ${iter.index + 1}">
+            <td>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <img th:if="${student.profilePicture != null and !student.profilePicture.isEmpty()}"
+                     th:src="${student.profilePicture}"
+                     style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--border-hover);" alt="Profile">
+                <div class="avatar-circle" th:if="${student.profilePicture == null or student.profilePicture.isEmpty()}"
+                     th:text="${student.firstName.substring(0,1) + student.lastName.substring(0,1)}"></div>
+                <div>
+                  <div style="font-weight:700;" th:text="${student.fullName}"></div>
+                  <div style="font-size:0.78rem;color:var(--text-muted);" th:text="'@' + ${student.username}"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div th:text="${student.email}" style="font-size:0.85rem;"></div>
+              <div th:text="${student.phone}" style="font-size:0.78rem;color:var(--text-muted);" th:if="${student.phone}"></div>
+            </td>
+            <td>
+              <div th:text="${student.college}" style="font-size:0.85rem;" th:if="${student.college}"></div>
+              <div th:text="${student.department}" style="font-size:0.78rem;color:var(--text-muted);" th:if="${student.department}"></div>
+              <div th:text="${student.year}" style="font-size:0.75rem;color:var(--accent);" th:if="${student.year}"></div>
+            </td>
+            <td>
+              <span class="badge rounded-pill px-3 py-2" th:classappend="${student.active} ? 'badge-active' : 'badge-inactive'"
+                    th:text="${student.active} ? 'Active' : 'Inactive'"></span>
+            </td>
+            <td style="font-size:0.82rem;color:var(--text-muted);" th:text="${#temporals.format(student.createdAt,'dd MMM yyyy')}"></td>
+            <td>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <a th:href="@{/admin/students/edit/{id}(id=${student.id})}" class="btn-outline-glow" title="Edit" style="padding:7px 11px;font-size:0.78rem;">
+                  <i class="fas fa-pen"></i>
+                </a>
+                <form th:action="@{/admin/students/toggle/{id}(id=${student.id})}" method="post" style="display:inline;">
+                  <button type="submit" class="btn-outline-glow" style="padding:7px 11px;font-size:0.78rem;"
+                          th:title="${student.active ? 'Deactivate' : 'Activate'}">
+                    <i class="fas" th:classappend="${student.active} ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+                  </button>
+                </form>
+                <form th:action="@{/admin/students/reset-password/{id}(id=${student.id})}" method="post" style="display:inline;">
+                  <input type="hidden" name="newPassword" value="student123">
+                  <button type="submit" class="btn-outline-glow" title="Reset password"
+                          style="padding:7px 11px;font-size:0.78rem;border-color:rgba(245,197,66,0.4);color:var(--accent);"
+                          onclick="return confirm('Reset password to student123?')">
+                    <i class="fas fa-key"></i>
+                  </button>
+                </form>
+                <form th:action="@{/admin/students/delete/{id}(id=${student.id})}" method="post" style="display:inline;">
+                  <button type="submit" class="btn-outline-glow" title="Delete"
+                          style="padding:7px 11px;font-size:0.78rem;border-color:rgba(239,68,68,0.4);color:#f87171;"
+                          onclick="return confirm('Delete this student permanently?')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+<script>
+function filterStudents(q) {
+  const rows = document.querySelectorAll('#studentsTable tbody tr');
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

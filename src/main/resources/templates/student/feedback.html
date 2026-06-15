@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Daily Feedback - InternPortal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/attendance.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-student :: sidebar('feedback')}"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="main-content">
+  <header class="top-header">
+    <button onclick="toggleSidebar()" id="menuBtn" class="menu-button"><i class="fas fa-bars"></i></button>
+    <div class="header-title">Daily Feedback</div>
+    <div class="header-actions">
+      <a th:href="@{/student/feedback/history}" class="btn-outline-glow" style="font-size:.82rem;padding:7px 16px;text-decoration:none;">
+        <i class="fas fa-clock-rotate-left"></i> History
+      </a>
+    </div>
+  </header>
+  <div class="page-content page-enter">
+    <div class="alert-glass success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert-glass error" th:if="${error}" th:text="${error}"></div>
+
+    <div style="max-width:640px;margin:0 auto;">
+      <div class="feedback-locked fade-in" th:if="${!checkedIn}">
+        <i class="fas fa-lock" style="font-size:2rem;color:var(--accent);"></i>
+        <div>
+          <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">Attendance Required</div>
+          <div style="font-size:.87rem;color:var(--text-secondary);">You need to check in first before submitting feedback.</div>
+          <a th:href="@{/student/attendance}" class="btn-gradient" style="display:inline-flex;margin-top:12px;font-size:.85rem;padding:9px 20px;text-decoration:none;">
+            <i class="fas fa-location-dot"></i> Mark Attendance
+          </a>
+        </div>
+      </div>
+
+      <div class="feedback-submitted fade-in" th:if="${feedbackSubmitted}">
+        <i class="fas fa-circle-check" style="font-size:2.4rem;margin-bottom:12px;color:#34d399;"></i>
+        <div style="font-size:1.1rem;font-weight:700;color:#34d399;margin-bottom:6px;">Feedback Submitted</div>
+        <div style="font-size:.87rem;color:var(--text-secondary);">You've already submitted your daily feedback today. Great work!</div>
+        <a th:href="@{/student/feedback/history}" class="btn-outline-glow" style="display:inline-flex;margin-top:16px;text-decoration:none;">View History</a>
+      </div>
+
+      <div class="feedback-form-card fade-in" th:if="${checkedIn and !feedbackSubmitted}">
+        <h5 style="color:var(--text-primary);font-weight:700;margin-bottom:6px;">What did you work on today?</h5>
+        <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:24px;">Share your daily progress with your supervisor.</p>
+
+        <form th:action="@{/feedback/submit}" method="post">
+          <div style="margin-bottom:20px;">
+            <label class="form-label-dark">Work Summary *</label>
+            <textarea name="workDone" class="feedback-textarea" maxlength="1000" required
+                      placeholder="What tasks did you complete today? What did you build or learn?"></textarea>
+          </div>
+          <div style="margin-bottom:20px;">
+            <label class="form-label-dark">Tasks Completed *</label>
+            <textarea name="dailyFeedback" class="feedback-textarea" maxlength="1000" required
+                      placeholder="List the specific tasks you completed today..."></textarea>
+          </div>
+          <div style="margin-bottom:24px;">
+            <label class="form-label-dark">Additional Notes <span style="color:var(--text-muted);font-weight:400;">(Optional)</span></label>
+            <textarea name="additionalNotes" class="feedback-textarea" maxlength="500"
+                      style="min-height:80px;"
+                      placeholder="Any blockers, questions, or things you want to highlight?"></textarea>
+          </div>
+
+          <button type="submit" class="btn-gradient" style="width:100%;justify-content:center;padding:14px;font-size:1rem;">
+            <i class="fas fa-paper-plane"></i> Submit Daily Feedback
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/feedback.js}"></script>
+</body></html>

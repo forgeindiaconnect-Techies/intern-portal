@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - InternPortal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-student :: sidebar('dashboard')}"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="main-content">
+  <header class="top-header">
+    <button onclick="toggleSidebar()" id="menuBtn" class="menu-button"><i class="fas fa-bars"></i></button>
+    <div class="header-title">Student Dashboard</div>
+    <div class="header-actions">
+      <a th:href="@{/student/notifications}" class="header-btn">
+        <i class="fas fa-bell"></i>
+        <span class="notif-dot" th:if="${unreadCount > 0}"></span>
+      </a>
+      <a th:href="@{/student/profile}" class="header-btn"><i class="fas fa-user"></i></a>
+    </div>
+  </header>
+
+  <div class="page-content page-enter">
+    <div class="alert-glass success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert-glass error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="dashboard-hero student-hero">
+      <div class="student-hero-profile">
+        <div class="avatar-circle hero-avatar"
+             th:if="${user.profilePicture == null or user.profilePicture.isEmpty()}"
+             th:text="${user.firstName.substring(0,1)+user.lastName.substring(0,1)}"></div>
+        <img th:if="${user.profilePicture != null and !user.profilePicture.isEmpty()}"
+             th:src="${user.profilePicture}" class="hero-avatar-img" alt="Profile">
+        <div>
+          <div class="eyebrow">Today at a glance</div>
+          <h1>Welcome back, <span th:text="${user.firstName}">Student</span></h1>
+          <p>
+            Status:
+            <span class="status-pill"
+                  th:classappend="${checkedOut} ? ' warning' : (${checkedIn} ? ' success' : '')"
+                  th:text="${attendanceStatus}">Not Marked</span>
+          </p>
+        </div>
+      </div>
+      <div class="attendance-ring">
+        <strong th:text="${attendancePercentage} + '%'">0%</strong>
+        <span>Attendance Rate</span>
+      </div>
+    </section>
+
+    <section class="glass-card p-4 fade-in" style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;">
+        <div>
+          <div class="eyebrow">Today's class timing</div>
+          <div style="font-size:1.4rem;font-weight:800;color:var(--text-primary);margin-top:6px;"
+               th:text="${#temporals.format(attendanceWindow.startTime,'hh:mm a')} + ' - ' + ${#temporals.format(attendanceWindow.endTime,'hh:mm a')}">
+            11:00 AM - 12:00 PM
+          </div>
+          <div style="color:var(--text-muted);font-size:.88rem;margin-top:6px;"
+               th:text="${attendanceWindowOpen ? 'Attendance is open now. Go mark it before the window closes.' : attendanceWindowMessage}">
+            Attendance timing message
+          </div>
+        </div>
+        <span class="metric-pill" th:classappend="${attendanceWindowOpen} ? ' success' : ''">
+          <i class="fas" th:classappend="${attendanceWindowOpen} ? ' fa-unlock' : ' fa-lock'"></i>
+          <span th:text="${attendanceWindowOpen} ? 'Open Now' : 'Not Valid Now'">Open Now</span>
+        </span>
+      </div>
+    </section>
+
+    <section class="stats-grid student-stats">
+      <div class="stat-card fade-in stagger-1">
+        <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+        <div class="stat-value" th:text="${presentDays}">0</div>
+        <div class="stat-label">Present Days</div>
+      </div>
+      <div class="stat-card fade-in stagger-2">
+        <div class="stat-icon red"><i class="fas fa-calendar-xmark"></i></div>
+        <div class="stat-value" th:text="${absentDays}">0</div>
+        <div class="stat-label">Absent Days</div>
+      </div>
+      <div class="stat-card fade-in stagger-3">
+        <div class="stat-icon cyan"><i class="fas fa-message"></i></div>
+        <div class="stat-value" th:text="${feedbackCount}">0</div>
+        <div class="stat-label">Feedback Submitted</div>
+      </div>
+      <div class="stat-card fade-in stagger-4">
+        <div class="stat-icon purple"><i class="fas fa-chart-simple"></i></div>
+        <div class="stat-value" th:text="${attendancePercentage} + '%'">0%</div>
+        <div class="stat-label">Attendance</div>
+      </div>
+    </section>
+
+    <section class="dashboard-grid dashboard-grid-two">
+      <div class="chart-card">
+        <div class="chart-title">Quick Actions</div>
+        <div class="chart-subtitle">Today's tasks</div>
+        <div class="action-stack">
+          <a th:href="@{/student/attendance}" class="btn-gradient action-link"
+             th:style="${checkedOut or (!checkedIn and !attendanceWindowOpen)} ? 'opacity:.5;pointer-events:none;' : ''">
+            <i class="fas fa-location-dot"></i>
+            Mark Attendance
+            <span th:if="${checkedIn and !checkedOut}">(Check Out)</span>
+            <span th:if="${!checkedIn}">(Check In)</span>
+          </a>
+          <a th:href="@{/student/feedback}" class="btn-outline-glow action-link"
+             th:style="${!canSubmitFeedback} ? 'opacity:.5;pointer-events:none;' : ''">
+            <i class="fas fa-pen-to-square"></i>
+            Submit Daily Feedback
+            <span th:if="${feedbackSubmitted}">Done</span>
+          </a>
+          <a href="https://fic-mcq-portal-1.onrender.com" target="_blank" rel="noopener" class="btn-outline-glow action-link">
+            <i class="fas fa-list-check"></i>
+            Test Yourself
+          </a>
+        </div>
+      </div>
+
+      <div class="quote-widget">
+        <div class="quote-text" th:text="${quote}">Loading quote...</div>
+        <div class="quote-author">Developer Wisdom</div>
+      </div>
+    </section>
+
+    <section class="glass-card panel-card fade-in" th:if="${todayAttendance != null}">
+      <div class="section-title">Today's Record</div>
+      <div class="attendance-record">
+        <div class="attendance-time-badge">
+          <span>Check-In:</span>
+          <strong th:text="${todayAttendance.checkInTime != null ? #temporals.format(todayAttendance.checkInTime,'HH:mm:ss') : 'Not yet'}"></strong>
+        </div>
+        <div class="attendance-time-badge" th:if="${todayAttendance.checkOutTime != null}">
+          <span>Check-Out:</span>
+          <strong th:text="${#temporals.format(todayAttendance.checkOutTime,'HH:mm:ss')}"></strong>
+        </div>
+        <span class="badge-present record-badge" th:text="${todayAttendance.status}"></span>
+      </div>
+    </section>
+
+    <section class="game-zone fade-in">
+      <div class="game-zone-title">
+        <span><i class="fas fa-gamepad"></i> Developer Fun Zone</span>
+        <span class="game-total-score">Score: <strong id="totalScore">0</strong></span>
+      </div>
+      <div class="game-tabs">
+        <button class="game-tab-btn active" onclick="switchGame('bugHunter',this)">Bug Hunter</button>
+        <button class="game-tab-btn" onclick="switchGame('syntaxChallenge',this)">Syntax</button>
+        <button class="game-tab-btn" onclick="switchGame('memoryMatch',this)">Memory</button>
+      </div>
+
+      <div id="bugHunter" class="game-panel active">
+        <div class="game-score">Score: <span id="bugScore">0</span></div>
+        <div class="code-snippet" id="bugCode"></div>
+        <p class="game-question">What's the bug in this code?</p>
+        <div class="game-options" id="bugOptions"></div>
+        <button onclick="nextBug()" class="btn-gradient game-next">Next Bug</button>
+      </div>
+
+      <div id="syntaxChallenge" class="game-panel">
+        <div class="game-score">Score: <span id="syntaxScore">0</span></div>
+        <p class="game-question" id="syntaxQuestion"></p>
+        <div class="game-options" id="syntaxOptions"></div>
+        <button onclick="nextSyntax()" class="btn-gradient game-next">Next</button>
+      </div>
+
+      <div id="memoryMatch" class="game-panel">
+        <div class="game-score">Moves: <span id="moveCount">0</span> | Matches: <span id="matchCount">0</span>/6</div>
+        <div class="memory-grid" id="memoryGrid"></div>
+        <button onclick="initMemory()" class="btn-gradient game-next">Restart</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script th:inline="javascript">
+const attendancePct = /*[[${attendancePercentage}]]*/ 0;
+</script>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/dashboard.js}"></script>
+<script th:src="@{/js/games.js}"></script>
+</body>
+</html>

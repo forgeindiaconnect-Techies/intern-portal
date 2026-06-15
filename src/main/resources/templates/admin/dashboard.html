@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - InternPortal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar-admin :: sidebar('dashboard')}"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="main-content">
+  <header class="top-header">
+    <button onclick="toggleSidebar()" class="menu-button" id="menuBtn"><i class="fas fa-bars"></i></button>
+    <div class="header-title">Admin Dashboard</div>
+    <div class="header-actions">
+      <a th:href="@{/admin/notifications}" class="header-btn">
+        <i class="fas fa-bell"></i>
+        <span class="notif-dot" th:if="${unreadCount > 0}"></span>
+      </a>
+      <a th:href="@{/admin/profile}" class="header-btn"><i class="fas fa-user"></i></a>
+    </div>
+  </header>
+
+  <div class="page-content page-enter">
+    <div class="alert-glass success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert-glass error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="dashboard-hero">
+      <div>
+        <div class="eyebrow">Program overview</div>
+        <h1>Welcome back, <span th:text="${user.firstName}">Admin</span></h1>
+        <p>Track attendance, feedback, and student activity for today's internship operations.</p>
+      </div>
+      <a th:href="@{/admin/students/add}" class="btn-gradient hero-action">
+        <i class="fas fa-user-plus"></i>
+        Add Student
+      </a>
+    </section>
+
+    <section class="stats-grid admin-stats">
+      <div class="stat-card fade-in stagger-1">
+        <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+        <div class="stat-value" th:text="${totalStudents}">0</div>
+        <div class="stat-label">Total Students</div>
+      </div>
+      <div class="stat-card fade-in stagger-2">
+        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+        <div class="stat-value" th:text="${presentToday}">0</div>
+        <div class="stat-label">Present Today</div>
+      </div>
+      <div class="stat-card fade-in stagger-3">
+        <div class="stat-icon red"><i class="fas fa-user-clock"></i></div>
+        <div class="stat-value" th:text="${absentToday}">0</div>
+        <div class="stat-label">Absent Today</div>
+      </div>
+      <div class="stat-card fade-in stagger-4">
+        <div class="stat-icon cyan"><i class="fas fa-door-open"></i></div>
+        <div class="stat-value" th:text="${checkedOutToday}">0</div>
+        <div class="stat-label">Checked Out</div>
+      </div>
+      <div class="stat-card fade-in stagger-5">
+        <div class="stat-icon orange"><i class="fas fa-comments"></i></div>
+        <div class="stat-value" th:text="${feedbackToday}">0</div>
+        <div class="stat-label">Feedback Today</div>
+      </div>
+      <div class="stat-card fade-in stagger-6">
+        <div class="stat-icon purple"><i class="fas fa-bolt"></i></div>
+        <div class="stat-value" th:text="${activeStudents}">0</div>
+        <div class="stat-label">Active Students</div>
+      </div>
+    </section>
+
+    <section class="dashboard-grid dashboard-grid-charts">
+      <div class="chart-card span-2">
+        <div class="chart-title">Attendance Trend</div>
+        <div class="chart-subtitle">Last 7 days attendance overview</div>
+        <canvas id="attendanceChart" height="100"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Today's Overview</div>
+        <div class="chart-subtitle">Present vs absent breakdown</div>
+        <canvas id="donutChart" height="200"></canvas>
+      </div>
+    </section>
+
+    <section class="dashboard-grid dashboard-grid-two">
+      <div class="glass-card panel-card">
+        <div class="section-header">
+          <div class="section-title">Recent Feedback</div>
+          <a th:href="@{/admin/feedback}" class="section-link">View All</a>
+        </div>
+        <div th:if="${#lists.isEmpty(recentFeedback)}" class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <span>No feedback submitted yet</span>
+        </div>
+        <div th:each="fb, iter : ${recentFeedback}" class="notif-item fade-in" th:classappend="'stagger-' + ${iter.index + 1}">
+          <div class="avatar-circle small-avatar">NA</div>
+          <div class="notif-content">
+            <div class="notif-title">Student</div>
+            <div class="notif-msg" th:text="${fb.workDone}"></div>
+          </div>
+          <div class="notif-time" th:text="${#temporals.format(fb.feedbackDate,'dd MMM')}"></div>
+        </div>
+      </div>
+
+      <div class="glass-card panel-card">
+        <div class="section-header">
+          <div class="section-title">Recent Notifications</div>
+          <a th:href="@{/admin/notifications}" class="section-link">View All</a>
+        </div>
+        <div th:if="${#lists.isEmpty(notifications)}" class="empty-state">
+          <i class="fas fa-bell-slash"></i>
+          <span>No notifications yet</span>
+        </div>
+        <ul class="notif-list">
+          <li th:each="notif, iter : ${notifications}" class="notif-item fade-in" th:classappend="'stagger-' + ${iter.index + 1}">
+            <a th:href="@{/admin/notifications/open/{id}(id=${notif.id})}" class="notif-inline-link">
+            <div class="notif-dot-indicator" th:classappend="${notif.read} ? 'read' : 'unread'"></div>
+            <div class="notif-content">
+              <div class="notif-title" th:text="${notif.title}"></div>
+              <div class="notif-msg" th:text="${notif.message}"></div>
+            </div>
+            <div class="notif-time" th:text="${#temporals.format(notif.createdAt,'HH:mm')}"></div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script th:inline="javascript">
+const analyticsLabels = /*[[${analytics.labels}]]*/ [];
+const analyticsValues = /*[[${analytics.values}]]*/ [];
+const presentToday = /*[[${presentToday}]]*/ 0;
+const absentToday = /*[[${absentToday}]]*/ 0;
+</script>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/dashboard.js}"></script>
+</body>
+</html>

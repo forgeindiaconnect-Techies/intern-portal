@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Attendance History – InternPortal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" th:href="@{/css/feedback.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-student :: sidebar('attendance-history')}"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="main-content">
+  <header class="top-header">
+    <button onclick="toggleSidebar()" id="menuBtn" style="background:none;border:none;color:var(--text-secondary);font-size:1.2rem;cursor:pointer;"><i class="fas fa-bars"></i></button>
+    <div class="header-title gradient-text">📅 Attendance History</div>
+  </header>
+  <div class="page-content page-enter">
+    <!-- Summary Row -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px;">
+      <div class="glass-card p-3 text-center">
+        <div style="font-size:1.8rem;font-weight:800;color:#34d399;" th:text="${presentDays}">0</div>
+        <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Present</div>
+      </div>
+      <div class="glass-card p-3 text-center">
+        <div style="font-size:1.8rem;font-weight:800;color:#f87171;" th:text="${absentDays}">0</div>
+        <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Absent</div>
+      </div>
+      <div class="glass-card p-3 text-center">
+        <div style="font-size:1.8rem;font-weight:800;" class="gradient-text" th:text="${attendancePercentage} + '%'">0%</div>
+        <div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Rate</div>
+      </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(history)}" style="text-align:center;padding:80px;color:var(--text-muted);">
+      <div style="font-size:4rem;margin-bottom:16px;">📅</div>
+      <div>No attendance records yet. <a th:href="@{/student/attendance}" style="color:var(--accent);">Mark today's attendance →</a></div>
+    </div>
+
+    <div th:each="att, iter : ${history}" class="history-item fade-in"
+         th:style="'animation-delay:' + ${iter.index * 0.04} + 's'">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div class="history-date" th:text="${#temporals.format(att.attendanceDate,'EEEE, dd MMMM yyyy')}"></div>
+          <div style="display:flex;gap:16px;margin-top:6px;flex-wrap:wrap;">
+            <span class="attendance-time-badge" style="margin:0;" th:if="${att.checkInTime != null}">
+              ⬆️ <span th:text="${#temporals.format(att.checkInTime,'HH:mm')}"></span>
+            </span>
+            <span class="attendance-time-badge" style="margin:0;" th:if="${att.checkOutTime != null}">
+              ⬇️ <span th:text="${#temporals.format(att.checkOutTime,'HH:mm')}"></span>
+            </span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a th:if="${att.attendancePhoto != null}" th:href="${att.attendancePhoto}" target="_blank">
+            <img th:src="${att.attendancePhoto}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid var(--border-hover);">
+          </a>
+          <span class="badge rounded-pill px-3 py-2"
+                th:classappend="${att.status.name()=='PRESENT'} ? 'badge-present' : 'badge-absent'"
+                th:text="${att.status}"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body></html>

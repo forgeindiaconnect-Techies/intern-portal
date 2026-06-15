@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Profile - InternPortal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" th:href="@{/css/feedback.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-student :: sidebar('profile')}"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="main-content">
+  <header class="top-header">
+    <button onclick="toggleSidebar()" id="menuBtn" class="menu-button"><i class="fas fa-bars"></i></button>
+    <div class="header-title">My Profile</div>
+  </header>
+  <div class="page-content page-enter">
+    <div class="alert-glass success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert-glass error" th:if="${error}" th:text="${error}"></div>
+
+    <div class="row g-4" style="max-width:900px;margin:0 auto;">
+      <div class="col-md-4">
+        <div class="profile-card text-center">
+          <div class="profile-avatar-wrap" style="margin:0 auto 20px;">
+            <div class="avatar-lg" id="avatarInitials"
+                 th:if="${user.profilePicture == null or user.profilePicture.isEmpty()}"
+                 th:text="${user.firstName.substring(0,1)+user.lastName.substring(0,1)}"></div>
+            <img id="profilePhotoPreview"
+                 th:if="${user.profilePicture != null and !user.profilePicture.isEmpty()}"
+                 th:src="${user.profilePicture}" alt="Profile">
+          </div>
+          <div style="font-size:1.2rem;font-weight:800;margin-bottom:4px;" th:text="${user.fullName}"></div>
+          <div style="color:var(--accent);font-size:.82rem;margin-bottom:6px;"><i class="fas fa-id-badge"></i> Intern</div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px;" th:text="${user.email}"></div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:20px;" th:text="${user.college}" th:if="${user.college}"></div>
+
+          <form th:action="@{/profile/upload-photo}" method="post" enctype="multipart/form-data">
+            <input type="file" id="profilePhotoInput" name="photo" accept="image/*" style="display:none;">
+            <button type="button" onclick="document.getElementById('profilePhotoInput').click()" class="btn-outline-glow" style="width:100%;margin-bottom:10px;">
+              <i class="fas fa-camera"></i> Choose Photo
+            </button>
+            <button type="submit" class="btn-gradient" style="width:100%;font-size:.85rem;padding:9px;">Upload</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <div class="profile-card" style="margin-bottom:20px;">
+          <h6 style="color:var(--text-primary);font-weight:700;margin-bottom:20px;">Edit Profile</h6>
+          <form th:action="@{/profile/update}" method="post">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+              <div>
+                <label class="form-label-dark">First Name</label>
+                <input type="text" name="firstName" class="form-control-dark w-100" th:value="${user.firstName}" required>
+              </div>
+              <div>
+                <label class="form-label-dark">Last Name</label>
+                <input type="text" name="lastName" class="form-control-dark w-100" th:value="${user.lastName}" required>
+              </div>
+              <div style="grid-column:span 2;">
+                <label class="form-label-dark">Email</label>
+                <input type="email" name="email" class="form-control-dark w-100" th:value="${user.email}" required>
+              </div>
+              <div style="grid-column:span 2;">
+                <label class="form-label-dark">Phone</label>
+                <input type="tel" name="phone" class="form-control-dark w-100" th:value="${user.phone}">
+              </div>
+            </div>
+            <button type="submit" class="btn-gradient"><i class="fas fa-save"></i> Save Changes</button>
+          </form>
+        </div>
+
+        <div class="profile-card">
+          <h6 style="color:var(--text-primary);font-weight:700;margin-bottom:20px;">Change Password</h6>
+          <form th:action="@{/profile/change-password}" method="post">
+            <div style="display:grid;gap:14px;margin-bottom:20px;">
+              <div>
+                <label class="form-label-dark">Current Password</label>
+                <input type="password" name="currentPassword" class="form-control-dark w-100" required>
+              </div>
+              <div>
+                <label class="form-label-dark">New Password</label>
+                <input type="password" name="newPassword" class="form-control-dark w-100" required>
+              </div>
+              <div>
+                <label class="form-label-dark">Confirm New Password</label>
+                <input type="password" name="confirmPassword" class="form-control-dark w-100" required>
+              </div>
+            </div>
+            <button type="submit" class="btn-gradient"><i class="fas fa-lock"></i> Update Password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/profile.js}"></script>
+</body></html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Analytics - InternPortal Admin</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-admin :: sidebar('analytics')}"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="main-content">
+  <header class="top-header">
+    <button onclick="toggleSidebar()" id="menuBtn" class="menu-button"><i class="fas fa-bars"></i></button>
+    <div class="header-title">Analytics</div>
+    <div class="header-actions"></div>
+  </header>
+  <div class="page-content page-enter">
+    <section class="dashboard-hero analytics-hero">
+      <div>
+        <div class="eyebrow">Performance insight</div>
+        <h1>Analytics Overview</h1>
+        <p>Last 30 days attendance and feedback performance.</p>
+      </div>
+    </section>
+
+    <section class="stats-grid analytics-stats">
+      <div class="stat-card fade-in stagger-1">
+        <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+        <div class="stat-value" th:text="${totalStudents}">0</div>
+        <div class="stat-label">Total Students</div>
+      </div>
+      <div class="stat-card fade-in stagger-2">
+        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+        <div class="stat-value" th:text="${presentToday}">0</div>
+        <div class="stat-label">Present Today</div>
+      </div>
+      <div class="stat-card fade-in stagger-3">
+        <div class="stat-icon orange"><i class="fas fa-comments"></i></div>
+        <div class="stat-value" th:text="${feedbackToday}">0</div>
+        <div class="stat-label">Feedback Today</div>
+      </div>
+    </section>
+
+    <section class="analytics-layout">
+      <div class="chart-card analytics-chart-card">
+        <div class="chart-title">30-Day Attendance Trend</div>
+        <div class="chart-subtitle">Daily present student count</div>
+        <div class="analytics-chart-wrap">
+          <canvas id="analyticsMainChart"></canvas>
+        </div>
+      </div>
+
+      <aside class="chart-card analytics-side-card">
+        <div class="chart-title">Quick Stats</div>
+        <div class="analytics-stat-block">
+          <div class="stat-label">Attendance Rate Today</div>
+          <div class="analytics-rate">
+            <span th:text="${totalStudents > 0 ? #numbers.formatDecimal(presentToday * 100.0 / totalStudents, 1, 1) : '0'}">0</span>%
+          </div>
+        </div>
+        <div class="analytics-stat-block">
+          <div class="stat-label">Feedback Rate Today</div>
+          <div class="analytics-rate">
+            <span th:text="${presentToday > 0 ? #numbers.formatDecimal(feedbackToday * 100.0 / presentToday, 1, 1) : '0'}">0</span>%
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+</div>
+<script th:inline="javascript">
+const analyticsLabels = /*[[${analytics.labels}]]*/ [];
+const analyticsValues = /*[[${analytics.values}]]*/ [];
+</script>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/charts.js}"></script>
+</body></html>

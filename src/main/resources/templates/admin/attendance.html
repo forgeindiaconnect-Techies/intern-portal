@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Attendance - InternPortal Admin</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-admin :: sidebar('attendance')}"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="main-content">
+  <header class="top-header">
+    <button onclick="toggleSidebar()" id="menuBtn" class="menu-button"><i class="fas fa-bars"></i></button>
+    <div class="header-title">Attendance Management</div>
+    <div class="header-actions">
+      <a th:href="@{/admin/notifications}" class="header-btn"><i class="fas fa-bell"></i><span class="notif-dot" th:if="${unreadCount > 0}"></span></a>
+    </div>
+  </header>
+  <div class="page-content page-enter">
+    <section class="dashboard-hero" style="margin-bottom:22px;">
+      <div>
+        <div class="eyebrow">Attendance records</div>
+        <h1>Attendance Management</h1>
+        <p th:text="'Showing ' + ${#lists.size(attendanceList)} + ' records for ' + ${#temporals.format(selectedDate,'dd MMMM yyyy')}"></p>
+      </div>
+      <div class="admin-toolbar">
+        <div class="metric-pill success">
+          <i class="fas fa-circle-check"></i>
+          <span th:text="${presentToday}">0</span> Present
+        </div>
+
+        <input type="date"
+               id="attendanceDate"
+               class="form-control-dark"
+               th:value="${selectedDate}"
+               style="width:180px;">
+
+        <button class="btn-gradient" onclick="viewAttendanceByDate()">
+          <i class="fas fa-calendar"></i> View
+        </button>
+
+        <button class="btn-outline-glow" onclick="downloadAttendanceExcel()">
+          <i class="fas fa-file-excel"></i> Excel
+        </button>
+      </div>
+    </section>
+
+    <div class="glass-card p-3 mb-4" style="display:flex;gap:12px;align-items:center;">
+      <i class="fas fa-search" style="color:var(--text-muted);"></i>
+      <input type="text" placeholder="Search by student name..." oninput="filterTable(this.value,'attTable')"
+             style="background:none;border:none;outline:none;color:var(--text-primary);flex:1;font-size:.9rem;">
+    </div>
+
+    <div class="glass-card">
+      <div th:if="${#lists.isEmpty(attendanceList)}" style="text-align:center;padding:60px;color:var(--text-muted);">
+        <i class="fas fa-inbox" style="font-size:2rem;margin-bottom:12px;color:var(--accent);"></i>
+        <div>No attendance records for today</div>
+      </div>
+      <div class="table-responsive" th:if="${!#lists.isEmpty(attendanceList)}">
+        <table class="table table-dark-glass" id="attTable">
+          <thead>
+          <tr><th>Student</th><th>Check-In</th><th>Check-Out</th><th>Photo</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+          <tr th:each="att : ${attendanceList}" class="fade-in">
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="avatar-circle" style="width:36px;height:36px;font-size:.75rem;"
+                     th:text="${att.user != null ? att.user.firstName.substring(0,1) + att.user.lastName.substring(0,1) : 'NA'}"></div>
+                <div>
+                  <div style="font-weight:700;" th:text="${att.user != null ? att.user.fullName : 'Unknown Student'}">Student Name</div>
+                  <div style="font-size:.75rem;color:var(--text-muted);" th:text="${att.user != null ? '@' + att.user.username : ''}"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span th:if="${att.checkInTime != null}" style="color:#34d399;font-weight:600;" th:text="${#temporals.format(att.checkInTime,'HH:mm:ss')}"></span>
+              <span th:if="${att.checkInTime == null}" style="color:var(--text-muted);">-</span>
+            </td>
+            <td>
+              <span th:if="${att.checkOutTime != null}" style="color:#f59e0b;font-weight:600;" th:text="${#temporals.format(att.checkOutTime,'HH:mm:ss')}"></span>
+              <span th:if="${att.checkOutTime == null}" style="color:var(--text-muted);">-</span>
+            </td>
+            <td>
+              <a th:if="${att.attendancePhoto != null}" th:href="${att.attendancePhoto}" target="_blank" rel="noopener">
+                <img th:src="${att.attendancePhoto}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid var(--border-hover);" alt="Attendance photo">
+              </a>
+              <span th:if="${att.attendancePhoto == null}" style="color:var(--text-muted);font-size:.8rem;">No photo</span>
+            </td>
+            <td>
+              <span class="badge rounded-pill px-3 py-2"
+                    th:classappend="${att.status.name() == 'PRESENT'} ? 'badge-present' : 'badge-absent'"
+                    th:text="${att.status}"></span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+<script>
+function filterTable(q,id){
+  document.querySelectorAll('#'+id+' tbody tr').forEach(r=>{
+    r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+</script>
+<script>
+function viewAttendanceByDate() {
+    const date = document.getElementById('attendanceDate').value;
+
+    if(!date){
+        alert('Please select a date');
+        return;
+    }
+
+    window.location =
+        '/admin/attendance/date?date=' + date;
+}
+
+function downloadAttendanceExcel() {
+    const date = document.getElementById('attendanceDate').value;
+
+    if(!date){
+        alert('Please select a date');
+        return;
+    }
+
+    window.location =
+        '/admin/attendance/export?date=' + date;
+}
+</script>
+</body></html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class Timing - InternPortal Admin</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-admin :: sidebar('settings')}"></div>
+<div class="main-content">
+  <header class="top-header">
+    <div class="header-title">Class Timing</div>
+    <div class="header-actions">
+      <a th:href="@{/admin/dashboard}" class="btn-outline-glow" style="font-size:.82rem;padding:7px 16px;text-decoration:none;">
+        <i class="fas fa-arrow-left"></i> Dashboard
+      </a>
+    </div>
+  </header>
+
+  <div class="page-content page-enter">
+    <div class="alert-glass success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert-glass error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="dashboard-hero" style="margin-bottom:24px;">
+      <div>
+        <div class="eyebrow">Attendance control</div>
+        <h1>Set today's class time</h1>
+        <p>Students can mark attendance only during this time window.</p>
+      </div>
+      <div class="metric-pill" th:classappend="${attendanceWindowOpen} ? ' success' : ''">
+        <i class="fas fa-clock"></i>
+        <span th:text="${#temporals.format(attendanceWindow.startTime,'hh:mm a')} + ' - ' + ${#temporals.format(attendanceWindow.endTime,'hh:mm a')}">11:00 AM - 12:00 PM</span>
+      </div>
+    </section>
+
+    <section class="glass-card p-4" style="max-width:720px;">
+      <form th:action="@{/admin/settings/attendance-window}" method="post">
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:22px;">
+          <div>
+            <label class="form-label-dark" for="startTime">Start Time</label>
+            <input class="form-control-dark w-100" id="startTime" name="startTime" type="time"
+                   th:value="${#temporals.format(attendanceWindow.startTime,'HH:mm')}" required>
+          </div>
+          <div>
+            <label class="form-label-dark" for="endTime">End Time</label>
+            <input class="form-control-dark w-100" id="endTime" name="endTime" type="time"
+                   th:value="${#temporals.format(attendanceWindow.endTime,'HH:mm')}" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-gradient">
+          <i class="fas fa-floppy-disk"></i> Save Timing
+        </button>
+      </form>
+    </section>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

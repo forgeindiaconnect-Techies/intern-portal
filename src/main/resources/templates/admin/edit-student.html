@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Student - InternPortal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar-admin :: sidebar('students')}"></div>
+<div class="main-content">
+  <header class="top-header">
+    <div class="header-title">Edit Student</div>
+    <div class="header-actions">
+      <a th:href="@{/admin/students}" class="btn-outline-glow"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+  </header>
+  <div class="page-content page-enter">
+    <div class="alert-glass error" th:if="${error}" th:text="${error}"></div>
+    <div style="max-width:700px;margin:0 auto;">
+      <div class="glass-card p-4">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+          <div class="avatar-circle" style="width:56px;height:56px;font-size:1.1rem;"
+               th:if="${student.profilePicture == null or student.profilePicture.isEmpty()}"
+               th:text="${student.firstName.substring(0,1) + student.lastName.substring(0,1)}"></div>
+          <img th:if="${student.profilePicture != null and !student.profilePicture.isEmpty()}"
+               th:src="${student.profilePicture}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;">
+          <div>
+            <h5 style="color:var(--text-primary);margin:0;font-weight:700;" th:text="${student.fullName}"></h5>
+            <div style="color:var(--text-muted);font-size:0.82rem;" th:text="'@' + ${student.username}"></div>
+          </div>
+        </div>
+        <form th:action="@{/admin/students/edit/{id}(id=${student.id})}" method="post">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+              <label class="form-label-dark">First Name *</label>
+              <input type="text" name="firstName" class="form-control-dark w-100" th:value="${student.firstName}" required>
+            </div>
+            <div>
+              <label class="form-label-dark">Last Name *</label>
+              <input type="text" name="lastName" class="form-control-dark w-100" th:value="${student.lastName}" required>
+            </div>
+            <div>
+              <label class="form-label-dark">Username *</label>
+              <input type="text" name="username" class="form-control-dark w-100" th:value="${student.username}" required>
+            </div>
+            <div>
+              <label class="form-label-dark">Email *</label>
+              <input type="email" name="email" class="form-control-dark w-100" th:value="${student.email}" required>
+            </div>
+            <div>
+              <label class="form-label-dark">Phone</label>
+              <input type="tel" name="phone" class="form-control-dark w-100" th:value="${student.phone}">
+            </div>
+            <div>
+              <label class="form-label-dark">College</label>
+              <input type="text" name="college" class="form-control-dark w-100" th:value="${student.college}">
+            </div>
+            <div>
+              <label class="form-label-dark">Department</label>
+              <input type="text" name="department" class="form-control-dark w-100" th:value="${student.department}">
+            </div>
+            <div>
+              <label class="form-label-dark">Year</label>
+              <select name="year" class="form-control-dark w-100">
+                <option value="">Select Year</option>
+                <option th:each="yr : ${ {'1st Year','2nd Year','3rd Year','4th Year'} }"
+                        th:value="${yr}" th:text="${yr}"
+                        th:selected="${yr == student.year}"></option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:28px;display:flex;gap:12px;">
+            <button type="submit" class="btn-gradient"><i class="fas fa-save"></i> Save Changes</button>
+            <a th:href="@{/admin/students}" class="btn-outline-glow">Cancel</a>
+          </div>
+        </form>
+
+        <!-- Upload Photo -->
+        <hr style="border-color:var(--border);margin:28px 0;">
+        <h6 style="color:var(--text-secondary);margin-bottom:16px;">Update Profile Photo</h6>
+        <form th:action="@{/admin/students/upload-photo/{id}(id=${student.id})}" method="post" enctype="multipart/form-data">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <input type="file" name="photo" accept="image/*" class="form-control-dark" style="flex:1;">
+            <button type="submit" class="btn-gradient" style="white-space:nowrap;"><i class="fas fa-upload"></i> Upload</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

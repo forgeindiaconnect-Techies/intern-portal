@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Internship Portal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/animations.css}">
+  <link rel="stylesheet" th:href="@{/css/login.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="login-page">
+  <section class="login-visual" aria-hidden="true">
+    <div class="fic-showcase">
+      <div class="fic-orbit">
+        <div class="fic-center">
+          <span>FIC</span>
+          <strong>Forge India Connect</strong>
+        </div>
+        <div class="fic-node node-1"><i class="fas fa-briefcase"></i><span>Recruitment</span></div>
+        <div class="fic-node node-2"><i class="fas fa-building-columns"></i><span>Banking Careers</span></div>
+        <div class="fic-node node-3"><i class="fas fa-code"></i><span>IT Solutions</span></div>
+        <div class="fic-node node-4"><i class="fas fa-palette"></i><span>UI/UX</span></div>
+        <div class="fic-node node-5"><i class="fas fa-users-gear"></i><span>Training</span></div>
+        <div class="fic-node node-6"><i class="fas fa-handshake"></i><span>Business Support</span></div>
+      </div>
+
+      <div class="fic-details visual-card">
+        <div class="visual-kicker">Forge India Connect</div>
+        <h2>Career, Digital & Business Enablement</h2>
+        <div class="fic-service-grid">
+          <div><i class="fas fa-user-tie"></i><span>Job Consulting & Recruitment</span></div>
+          <div><i class="fas fa-laptop-code"></i><span>IT & Digital Solutions</span></div>
+          <div><i class="fas fa-graduation-cap"></i><span>Internships & Training</span></div>
+          <div><i class="fas fa-headset"></i><span>Business Support Services</span></div>
+        </div>
+        <p>
+          Placement assistance, campus hiring, workforce enablement, web/mobile development,
+          UI/UX design, digital marketing, real-time internships, corporate training,
+          home services, and product ordering support.
+        </p>
+        <div class="fic-contact">
+          <div><i class="fas fa-location-dot"></i><span>RK Towers, Rayakottai Rd, opposite HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002</span></div>
+          <div><i class="fas fa-phone"></i><span>+91 63694 06416</span></div>
+          <div><i class="fas fa-clock"></i><span>Monday - Saturday: 9:00 AM - 7:00 PM</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="login-panel">
+    <div class="brand-lockup fade-in">
+      <div class="brand-mark"><i class="fas fa-graduation-cap"></i></div>
+      <div>
+        <h1>InternPortal</h1>
+        <p>Internship Attendance Management System</p>
+      </div>
+    </div>
+
+    <div class="login-card fade-in stagger-1">
+      <div class="accent-strip"></div>
+      <h2>Welcome back</h2>
+      <p class="subtitle">Sign in to continue to your dashboard.</p>
+
+      <div class="login-alert error" th:if="${param.error}">
+        <i class="fas fa-circle-exclamation"></i>
+        <span>Invalid username or password. Please try again.</span>
+      </div>
+
+      <div class="login-alert success" th:if="${param.logout}">
+        <i class="fas fa-circle-check"></i>
+        <span>You have been logged out successfully.</span>
+      </div>
+
+      <form method="POST" th:action="@{/login}">
+        <div class="login-form-group">
+          <label class="form-label-dark" for="username">Username</label>
+          <div class="input-icon-wrap">
+            <i class="fas fa-user input-icon"></i>
+            <input id="username" type="text" name="username" class="login-input"
+                   placeholder="Enter your username" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="login-form-group">
+          <label class="form-label-dark" for="password">Password</label>
+          <div class="input-icon-wrap">
+            <i class="fas fa-lock input-icon"></i>
+            <input id="password" type="password" name="password" class="login-input"
+                   placeholder="Enter your password" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <div class="remember-row">
+          <label class="remember-check">
+            <input type="checkbox" name="remember-me">
+            <span class="remember-label">Remember me</span>
+          </label>
+          <span class="secure-note"><i class="fas fa-shield-halved"></i> Secure access</span>
+        </div>
+
+        <button type="submit" class="login-btn">
+          <span>Sign In</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p>Students cannot self-register. Contact your admin to get access.</p>
+      </div>
+    </div>
+
+    <div class="default-login">
+    </div>
+  </section>
+</main>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
