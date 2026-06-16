@@ -19,7 +19,10 @@
 <div class="main-content">
   <header class="top-header">
     <button onclick="toggleSidebar()" id="menuBtn" class="menu-button"><i class="fas fa-bars"></i></button>
-    <div class="header-title">Student Dashboard</div>
+    <div class="header-brand">
+      <img class="header-logo-circle" th:src="@{/images/fic-logo.png}" alt="Forge India Connect logo">
+      <div class="header-title">Student Dashboard</div>
+    </div>
     <div class="header-actions">
       <a th:href="@{/student/notifications}" class="header-btn">
         <i class="fas fa-bell"></i>

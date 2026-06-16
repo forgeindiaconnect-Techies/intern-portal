@@ -228,11 +228,31 @@ body[data-theme="light"] .top-header {
   background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 12px 36px rgba(15, 23, 42, 0.05);
 }
+.header-brand {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  min-width: 0;
+}
+
+.header-logo-circle {
+  background: #fff;
+  border: 2px solid rgba(245,197,66,.64);
+  border-radius: 50%;
+  box-shadow: 0 10px 24px rgba(245,197,66,.16);
+  flex-shrink: 0;
+  height: 44px;
+  object-fit: cover;
+  width: 44px;
+}
+
 .header-title {
   flex: 1;
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
+  min-width: 0;
 }
 .header-actions { display: flex; align-items: center; gap: 12px; }
 .header-btn {
