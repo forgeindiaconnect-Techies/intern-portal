@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +18,8 @@ public class AttendanceWindowService {
     private static final long WINDOW_ID = 1L;
     private static final LocalTime DEFAULT_START = LocalTime.of(11, 0);
     private static final LocalTime DEFAULT_END = LocalTime.of(12, 0);
+    private static final ZoneId ATTENDANCE_ZONE = ZoneId.of("Asia/Kolkata");
+    private static final DateTimeFormatter DISPLAY_TIME = DateTimeFormatter.ofPattern("hh:mm a");
 
     private final AttendanceWindowRepository attendanceWindowRepository;
 
@@ -41,14 +46,19 @@ public class AttendanceWindowService {
 
     public boolean isOpenNow() {
         AttendanceWindow window = getWindow();
-        LocalTime now = LocalTime.now();
+        LocalTime now = getCurrentTime();
         return !now.isBefore(window.getStartTime()) && !now.isAfter(window.getEndTime());
+    }
+
+    public LocalTime getCurrentTime() {
+        return LocalTime.now(Clock.system(ATTENDANCE_ZONE));
     }
 
     public String getClosedMessage() {
         AttendanceWindow window = getWindow();
-        return "Hey idiot, this is not the right time to mark your attendance. Today's class window is "
-                + window.getStartTime() + " to " + window.getEndTime()
-                + ". Come back tomorrow at the exact class time.";
+        return "Attendance is open only during today's class window: "
+                + window.getStartTime().format(DISPLAY_TIME) + " to "
+                + window.getEndTime().format(DISPLAY_TIME)
+                + ". Please come back during the scheduled class time.";
     }
 }

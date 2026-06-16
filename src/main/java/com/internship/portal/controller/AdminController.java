@@ -174,7 +174,7 @@ public class AdminController {
         addCommonAttributes(model, admin);
         model.addAttribute("attendanceList", attendanceService.getTodayAll());
         model.addAttribute("presentToday", attendanceService.countPresentToday());
-        model.addAttribute("selectedDate", LocalDate.now());
+        model.addAttribute("selectedDate", attendanceService.getToday());
         return "admin/attendance";
     }
     @GetMapping("/attendance/date")

@@ -22,11 +22,11 @@ public class FeedbackService {
     private final NotificationService notificationService;
 
     public Optional<Feedback> getTodayFeedback(User user) {
-        return feedbackRepository.findByUserAndFeedbackDate(user, LocalDate.now());
+        return feedbackRepository.findByUserAndFeedbackDate(user, attendanceService.getToday());
     }
 
     public Feedback submitFeedback(User user, String workDone, String dailyFeedback, String additionalNotes) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = attendanceService.getToday();
 
         Optional<Attendance> attendance = attendanceService.getTodayAttendance(user);
         if (attendance.isEmpty() || attendance.get().getCheckInTime() == null) {
@@ -60,7 +60,7 @@ public class FeedbackService {
     }
 
     public long countSubmittedToday() {
-        return feedbackRepository.countByFeedbackDate(LocalDate.now());
+        return feedbackRepository.countByFeedbackDate(attendanceService.getToday());
     }
 
     public long countByUser(User user) {

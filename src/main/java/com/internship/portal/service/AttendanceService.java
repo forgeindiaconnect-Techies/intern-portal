@@ -12,14 +12,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.Base64;
 
 @Service
 @Transactional
 public class AttendanceService {
+
+    private static final ZoneId ATTENDANCE_ZONE = ZoneId.of("Asia/Kolkata");
 
     private final AttendanceRepository attendanceRepository;
     private final NotificationService notificationService;
@@ -37,7 +41,7 @@ public class AttendanceService {
     }
 
     public Optional<Attendance> getTodayAttendance(User user) {
-        return attendanceRepository.findByUserAndAttendanceDate(user, LocalDate.now());
+        return attendanceRepository.findByUserAndAttendanceDate(user, getToday());
     }
 
     public Attendance checkIn(User user, MultipartFile photo) throws IOException {
@@ -53,7 +57,7 @@ public class AttendanceService {
             throw new IllegalStateException(attendanceWindowService.getClosedMessage());
         }
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = getToday();
         Optional<Attendance> existing = attendanceRepository.findByUserAndAttendanceDate(user, today);
         if (existing.isPresent() && existing.get().getCheckInTime() != null) {
             throw new IllegalStateException("Already checked in today");
@@ -65,7 +69,7 @@ public class AttendanceService {
                 .status(AttendanceStatus.ABSENT)
                 .build());
 
-        attendance.setCheckInTime(LocalTime.now());
+        attendance.setCheckInTime(getCurrentTime());
         attendance.setStatus(AttendanceStatus.PRESENT);
 
         if (photoData != null && !photoData.isBlank()) {
@@ -85,7 +89,7 @@ public class AttendanceService {
     }
 
     public Attendance checkOut(User user) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = getToday();
         Attendance attendance = attendanceRepository.findByUserAndAttendanceDate(user, today)
                 .orElseThrow(() -> new IllegalStateException("You must check in before checking out"));
 
@@ -96,7 +100,7 @@ public class AttendanceService {
             throw new IllegalStateException("Already checked out today");
         }
 
-        attendance.setCheckOutTime(LocalTime.now());
+        attendance.setCheckOutTime(getCurrentTime());
         Attendance saved = attendanceRepository.save(attendance);
         notificationService.notifyUser(user, "Check-Out Successful", "You checked out at " + saved.getCheckOutTime(), "/student/attendance/history");
         notificationService.notifyAdmins("Student Check-Out", user.getFullName() + " checked out at " + saved.getCheckOutTime(), "/admin/attendance");
@@ -133,7 +137,7 @@ public class AttendanceService {
     }
 
     public List<Attendance> getTodayAll() {
-        return attendanceRepository.findTodayWithUsers(LocalDate.now());
+        return attendanceRepository.findTodayWithUsers(getToday());
     }
 
     public List<Attendance> getAllByDateRange(LocalDate start, LocalDate end) {
@@ -141,11 +145,11 @@ public class AttendanceService {
     }
 
     public long countPresentToday() {
-        return attendanceRepository.countByAttendanceDateAndStatus(LocalDate.now(), AttendanceStatus.PRESENT);
+        return attendanceRepository.countByAttendanceDateAndStatus(getToday(), AttendanceStatus.PRESENT);
     }
 
     public long countCheckedOutToday() {
-        return attendanceRepository.countByAttendanceDateAndCheckOutTimeIsNotNull(LocalDate.now());
+        return attendanceRepository.countByAttendanceDateAndCheckOutTimeIsNotNull(getToday());
     }
 
     public List<Attendance> getRecentAttendance() {
@@ -161,7 +165,7 @@ public class AttendanceService {
     }
 
     public Map<String, Object> getAnalyticsData(int days) {
-        LocalDate end = LocalDate.now();
+        LocalDate end = getToday();
         LocalDate start = end.minusDays(days - 1L);
         List<Object[]> presentData = attendanceRepository.countPresentByDateRange(start, end, AttendanceStatus.PRESENT);
 
@@ -179,5 +183,13 @@ public class AttendanceService {
     }
     public List<Attendance> getAttendanceByDate(LocalDate date) {
         return attendanceRepository.findByAttendanceDateWithUsers(date);
+    }
+
+    public LocalDate getToday() {
+        return LocalDate.now(Clock.system(ATTENDANCE_ZONE));
+    }
+
+    public LocalTime getCurrentTime() {
+        return LocalTime.now(Clock.system(ATTENDANCE_ZONE));
     }
 }

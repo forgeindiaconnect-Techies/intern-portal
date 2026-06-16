@@ -61,7 +61,7 @@
       <div class="glass-card p-4 fade-in stagger-1" th:if="${!checkedIn and !attendanceWindowOpen}">
         <h6 style="color:var(--text-primary);font-weight:700;margin-bottom:12px;"><i class="fas fa-lock"></i> Attendance Closed</h6>
         <div style="font-size:.9rem;color:var(--text-secondary);line-height:1.7;" th:text="${attendanceWindowMessage}">
-          Hey idiot, this is not the right time to mark your attendance. Come back tomorrow at the exact class time.
+          Attendance is open only during the scheduled class time.
         </div>
       </div>
 
