@@ -4,9 +4,9 @@
   display: grid;
   grid-template-columns: minmax(360px, 1.1fr) minmax(380px, 0.9fr);
   background:
-    radial-gradient(circle at 18% 22%, rgba(245,197,66,.13), transparent 30%),
-    radial-gradient(circle at 78% 70%, rgba(245,158,11,.08), transparent 30%),
-    #070910;
+    radial-gradient(circle at 18% 22%, rgba(246,201,69,.16), transparent 30%),
+    radial-gradient(circle at 78% 70%, rgba(37,99,235,.2), transparent 30%),
+    #06152b;
   overflow: hidden;
   position: relative;
 }
@@ -37,9 +37,9 @@
 }
 
 .visual-card {
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.14);
-  box-shadow: 0 30px 90px rgba(0,0,0,.42);
+  background: rgba(10,31,61,.84);
+  border: 1px solid rgba(246,201,69,.24);
+  box-shadow: 0 30px 90px rgba(0,0,0,.36);
   backdrop-filter: blur(24px);
 }
 
@@ -106,8 +106,8 @@
 
 .fic-node {
   align-items: center;
-  background: linear-gradient(145deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
-  border: 1px solid rgba(245,197,66,.28);
+  background: linear-gradient(145deg, rgba(15,45,85,.92), rgba(10,31,61,.76));
+  border: 1px solid rgba(246,201,69,.36);
   border-radius: 999px;
   box-shadow: 0 18px 42px rgba(0,0,0,.24);
   color: var(--text-primary);
@@ -160,8 +160,8 @@
 .fic-service-grid div,
 .fic-contact div {
   align-items: flex-start;
-  background: rgba(255,255,255,.055);
-  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(6,21,43,.54);
+  border: 1px solid rgba(246,201,69,.18);
   border-radius: 12px;
   color: var(--text-secondary);
   display: flex;
@@ -320,8 +320,8 @@
 }
 
 .login-card {
-  background: rgba(255,255,255,.075);
-  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(10,31,61,.88);
+  border: 1px solid rgba(246,201,69,.24);
   border-radius: 22px;
   box-shadow: 0 26px 70px rgba(0,0,0,.4);
   overflow: hidden;
@@ -377,8 +377,8 @@
 }
 
 .login-input {
-  background: rgba(255,255,255,.065);
-  border: 1px solid rgba(255,255,255,.13);
+  background: rgba(6,21,43,.68);
+  border: 1px solid rgba(199,210,229,.18);
   border-radius: 12px;
   color: var(--text-primary);
   font-size: .92rem;
@@ -389,7 +389,7 @@
 }
 
 .login-input:focus {
-  background: rgba(255,255,255,.1);
+  background: rgba(10,31,61,.9);
   border-color: rgba(245,197,66,.72);
   box-shadow: 0 0 0 3px rgba(245,197,66,.14);
 }
@@ -430,7 +430,7 @@
 
   border: none;
   border-radius: 12px;
-  color: #07110a;
+  color: #10213c;
   cursor: pointer;
   display: flex;
   font-size: .96rem;
@@ -492,9 +492,9 @@
 
 body[data-theme="light"] .login-page {
   background:
-    radial-gradient(circle at 18% 20%, rgba(245,197,66,.26), transparent 32%),
-    radial-gradient(circle at 78% 68%, rgba(245,158,11,.16), transparent 30%),
-    linear-gradient(135deg, #fffdf7 0%, #f6f1e4 52%, #fffaf0 100%);
+    radial-gradient(circle at 18% 20%, rgba(246,201,69,.24), transparent 32%),
+    radial-gradient(circle at 78% 68%, rgba(255,255,255,.9), transparent 30%),
+    linear-gradient(135deg, #fffdf7 0%, #ffffff 52%, #fff8dd 100%);
 }
 
 body[data-theme="light"] .login-page::before {
@@ -506,7 +506,7 @@ body[data-theme="light"] .login-page::before {
 
 body[data-theme="light"] .visual-card,
 body[data-theme="light"] .login-card {
-  background: rgba(255,255,255,.82);
+  background: rgba(255,255,255,.94);
   border-color: rgba(180,128,14,.24);
   box-shadow: 0 24px 70px rgba(120,83,14,.16);
 }
@@ -544,9 +544,9 @@ body[data-theme="light"] .default-login {
 }
 
 body[data-theme="light"] .login-input {
-  background: rgba(255,255,255,.78);
+  background: rgba(255,255,255,.92);
   border-color: rgba(180,128,14,.24);
-  color: #16130c;
+  color: #10213c;
 }
 
 body[data-theme="light"] .login-input:focus {
